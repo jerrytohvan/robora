@@ -1,2 +1,15 @@
-console.log('This is the background page.');
-console.log('Put the background scripts here.');
+/* global chrome */
+
+console.log('BACKGROUND');
+
+
+function initClippy() {
+  console.log('initClippy');
+
+  chrome.tabs.executeScript(null,
+    {code:"clippy.show();"}
+  );
+  }
+
+chrome.tabs.onUpdated.addListener(initClippy);
+chrome.tabs.onCreated.addListener(initClippy);
