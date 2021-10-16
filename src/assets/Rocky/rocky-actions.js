@@ -1,10 +1,10 @@
-clippy.load('Rocky', function(agent){
+clippy.load('Rocky', (agent) => {
     // do anything with the loaded agent
   agent.show();
 
-  var callsf = function(yescall){
-    return function(){
-      $('.clippyyes').click(function(ev){
+  var callsf = (yescall) => {
+    return () => {
+      $('.clippyyes').click((ev) => {
         ev.preventDefault();
         yescall();
         agent.stopCurrent();
@@ -13,7 +13,7 @@ clippy.load('Rocky', function(agent){
         agent.play('GetWizardy');
       });
 
-      $('.clippyno').click(function(ev){
+      $('.clippyno').click((ev) => {
         ev.preventDefault();
         agent.stopCurrent();
         agent.stop();
@@ -23,29 +23,29 @@ clippy.load('Rocky', function(agent){
     }
   }
 
-  $('input').keypress(function(){
+  $('input').keypress(() => {
     agent.stop();
     agent.play('Writing');
   });
 
-  $('textarea').keypress(function(){
+  $('textarea').keypress(()=>{
     agent.stop();
     agent.play('Writing');
   });
 
 
-  var urlchange = function(){
-    var yescall = function(){window.location.href = 'https://www.josephprince.org/';}
+  var urlchange = () => {
+    var yescall = () => {window.location.href = 'https://www.google.com/';}
     agent.speak("Would you like to check out a website?<br /><br /><a href=\"#\" class=\"clippyyes\">YES</a>    <a href=\"#\" class=\"clippyno\">NO</a>", true, callsf(yescall));
   };
 
 
-  var cat1 = function(){
+  var cat1 = () => {
     agent.play('GetTechy');
     agent.speak("HELLO THERE! 😀");
   };
 
-  var animate = function(){
+  var animate = () => {
     agent.animate();
   }
 
@@ -56,28 +56,28 @@ clippy.load('Rocky', function(agent){
     fun();
   });
 
-  $('body').ajaxStart(function() {
+  $('body').ajaxStart(() => {
     agent.stopCurrent();
     agent.stop();
     agent.speak("Sending request in the background...");
     agent.play('Processing');
   });
 
-  $('body').ajaxSuccess(function() {
+  $('body').ajaxSuccess(() => {
     agent.stopCurrent();
     agent.stop();
     agent.speak("Background request succeeded in some way!")
     agent.play('Congratulate');
   });
 
-  $('body').ajaxError(function() {
+  $('body').ajaxError(() => {
     agent.stopCurrent();
     agent.stop();
     agent.speak("Something went horribly wrong with the background request!")
     agent.animate();
   });
 
-  $('body').ajaxComplete(function() {
+  $('body').ajaxComplete(() => {
     agent.stopCurrent();
     agent.stop();
   });
@@ -87,11 +87,11 @@ clippy.load('Rocky', function(agent){
     urlchange,
     animate
   ]
-  window.setInterval(function(){
+  window.setInterval(() => {
     var fun = arr[Math.floor(Math.random()*arr.length)];
     if(clippy.isEmpty()){
       fun();
     }
-  }, 45000);
+  }, 60000);
 
 },undefined, './build/');
