@@ -1,3 +1,5 @@
+/* global chrome */
+
 var clippy = {};
 var curagent = null;
 
@@ -155,6 +157,7 @@ clippy.Agent.prototype = {
      * @param {Boolean=} fast
      */
     show:function (fast) {
+        console.log("showing agent");
 
         this._hidden = false;
         if (fast) {
@@ -165,11 +168,26 @@ clippy.Agent.prototype = {
         }
 
         if (this._el.css('top') === 'auto' || !this._el.css('left') === 'auto') {
-            var left = $(window).width() * 0.8;
-            var top = ($(window).height() + $(document).scrollTop()) * 0.8;
-            this._el.css({top:top, left:left});
-        }
+            let left = $(window).width() * 0.8;
+            let top = ($(window).height() + $(document).scrollTop()) * 0.8;
+            const chromeStorage = new Promise(function(resolve, reject) {
+                 chrome.storage.local.get(['saved_position'], (position) => {
+                    console.log("Repositioning agent by saved_position");
+                    left = position.saved_position.o.left;
+                    top = position.saved_position.o.top;
+                    console.log('Done repositioning by saved_position');
+                    resolve({left, top});
+                })
+            });
+            chromeStorage.then((value) => {
+                console.log(value);
+                this._el.css({top:top, left:left});
+                console.log(`TOP ${top}`)
+                console.log(`LEFT ${left}`)
+            });
 
+
+        }
         this.resume();
         return this.play('Show');
     },
@@ -366,6 +384,15 @@ clippy.Agent.prototype = {
 
         var top = o.top - sT;
         var left = o.left - sL;
+
+        chrome.storage.local.get(['saved_position'], (position) => {
+            console.log("repositioning!");
+            console.log(JSON.stringify(position));
+            left = position.saved_position.o.left;
+            top = position.saved_position.o.top;
+            console.log('Done repositioning');
+        });
+
         var m = 5;
         if (top - m < 0) {
             top = m;
@@ -690,6 +717,10 @@ clippy.Balloon.prototype = {
         }
     },
 
+    // reinitializePosition: function (){
+
+    // }
+
     _BALLOON_MARGIN:15,
 
     /***
@@ -701,14 +732,35 @@ clippy.Balloon.prototype = {
         var o = this._targetEl.offset();
         var h = this._targetEl.height();
         var w = this._targetEl.width();
+        // console.log(`=========================`);
+        // console.log(`OFFSET ${w}`);
+        // console.log(`HEIGHT ${h}`);
+        // console.log(`WIDTH ${w}`);
+
 
         var bH = this._balloon.outerHeight();
         var bW = this._balloon.outerWidth();
+        // console.log(`baloon HEIGHT ${bH}`);
+        // console.log(`baloon WIDTH ${bW}`);
+        // console.log(`=========================`);
+
+
 
         this._balloon.removeClass('clippy-top-left');
         this._balloon.removeClass('clippy-top-right');
         this._balloon.removeClass('clippy-bottom-right');
         this._balloon.removeClass('clippy-bottom-left');
+
+        // chrome.storage.local.get(['saved_position'], (position) => {
+        //     console.log("There is saved location before!");
+        //     console.log(JSON.stringify(position.saved_position));
+        //     o = position.saved_position.o;
+        //     h = position.saved_position.h;
+        //     w = position.saved_position.w;
+        //     bH = position.saved_position.bH;
+        //     bW = position.saved_position.bW;
+        //     console.log('Done reinitializing position')
+        // });
 
         var left, top;
         switch (side) {
@@ -736,6 +788,10 @@ clippy.Balloon.prototype = {
 
         this._balloon.css({top:top, left:left});
         this._balloon.addClass('clippy-' + side);
+        chrome.storage.local.set({ saved_position: {
+                o : {"left":left,"top":top}, h, w, bH, bW
+            }}, () => console.log('New location saved!')
+        );
     },
 
     _isOut:function () {
